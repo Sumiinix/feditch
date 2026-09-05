@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Add account</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../lib/oat/oat.min.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <div 
+        data-page="add_redirect"
+        data-state="add_redirect"
+        data-current-page="true"
+      >
+        <h2>Select the method</h2>
+        <p>What method do you want to use to add instance redirect?</p>
+        <div class="vstack">
+          <section class="card">
+            <header>
+              <h3>Add from domain</h3>
+            </header>
+            <p>
+              When you enter the instance's domain, 
+              we look for possible redirect methods from that domain.
+            </p>
+            <footer>
+              <div class="flex justify-end">
+                <button data-to-page="auto_form">Proceed to input</button>
+              </div>
+            </footer>
+          </section>
+          <section class="card">
+            <header>
+              <h3>Add manually</h3>
+            </header>
+            <p>Set up redirects manually. You can use URL templates, etc.</p>
+            <footer>
+              <div class="flex justify-end">
+                <button data-to-page="completed">WIP❗️</button>
+              </div>
+            </footer>
+          </section>
+        </div>
+        <div>
+          <button class="outline mt-4" data-close>Cancel</button>
+        </div>
+      </div>
+      <div
+        data-page="auto_form"
+        data-state="auto_form"
+        data-current-page="false"
+      >
+        <h2>Add from domain</h2>
+        <div id="auto_form_card" class="card" data-spinner="large overlay">
+          <h3>Enter instance's domain to create a redirect</h3>
+          <form id="auto_form_input">
+            <label>
+              Save redirect name *
+              <input
+                name="name"
+                type="text"
+                placeholder="Switch to example.com"
+                minlength="2"
+                maxlength="30"
+                autocomplete="off"
+                required
+              />
+              <div id="name-error" class="error-msg"></div>
+            </label>
+            <label>
+              Domain *
+              <input
+                name="domain"
+                type="text"
+                placeholder="example.com"
+                autocomplete="off"
+                maxlength="10000"
+                required
+              />
+              <div id="domain-error" class="error-msg"></div>
+            </label>
+            <input type="submit" value="Add redirect" id="auto_form_add_btn" data-spinner="small"/>
+            <div id="submit-error" class="error-msg"></div>
+          </form>
+        </div>
+        <div>
+          <button class="outline mt-4" data-to-page="add_redirect">Back</button>
+        </div>
+      </div>
+      <div
+        data-page="dialog"
+        data-current-page="false"
+      >
+        <!-- <div class="hstack mb-6">
+          <h2>dialog</h2>
+        </div> -->
+        <section class="card flex flex-col">
+          <header class="flex justify-center">
+            <h3 id="dialog-head-message">message</h3>
+          </header>
+          <div id="dialog-message">
+            message
+          </div>
+          <footer>
+            <div class="hstack justify-end mt-6">
+              <button class="outline" data-dialog-no>cancel</button>
+              <button data-dialog-yes>Yes</button>
+            </div>
+          </footer>
+        </section>
+      </div>
+      <div
+        data-page="completed"
+        data-current-page="false"
+      >
+        <div class="hstack mb-6">
+          <h2>✔ Succeeded</h2>
+        </div>
+        <section class="card flex flex-col">
+          <header class="flex justify-center">
+            <h3>Added redirect</h3>
+          </header>
+          <div id="successful-info"></div>
+          <footer>
+            <div class="flex justify-center mt-6">
+              <button data-close>Complete</button>
+            </div>
+          </footer>
+        </section>
+      </div>
+      <!-- <div
+        data-page="youcanclose"
+        data-current-page="false"
+      >
+        <div class="hstack mb-6">
+          <h2>You can close the tab</h2>
+        </div>
+      </div> -->
+    </main>
+    <footer class="footer"></footer>
+  </body>
+  <script src="../lib/oat/oat.min.js"></script>
+  <script type="module" src="./add-redirect-script/page.js"></script>
+</html>

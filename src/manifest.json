@@ -1,0 +1,32 @@
+{
+  "description": "Fediverse instance switcher",
+  "manifest_version": 3,
+  "name": "Feditch",
+  "version": "0.0.1",
+  "homepage_url": "https://sumiinix.moe",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": ["https://*/*"],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "feditch@sumiinix.moe",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  },
+  "action": {
+    "default_title": "Feditch",
+    "default_popup": "popup/index.html"
+  },
+  "options_ui": {
+    "page": "options/manage.html",
+    "browser_style": false,
+    "open_in_tab": true
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["options/callback.html"],
+      "matches": ["https://*/*"]
+    }
+  ]
+}

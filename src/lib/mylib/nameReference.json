@@ -1,0 +1,21 @@
+{
+  "fromRelsToMethodName": {
+    "https://w3id.org/fep/3b86/Object": "ActivityIntentsObject",
+    "http://ostatus.org/schema/1.0/subscribe": "Ostatus1.0Subscribe"
+  },
+
+  "methods": {
+    "ActivityIntentsObject": {
+      "displayName": "Activity Intents",
+      "type": "template"
+    },
+    "Ostatus1.0Subscribe": {
+      "displayName": "Ostatus 1.0 Subscribe",
+      "type": "template"
+    },
+    "MastodonAPIV2Search": {
+      "displayName": "Mastodon API",
+      "type": "api"
+    }
+  }
+}
