@@ -1,19 +1,12 @@
 import {manageLatest} from "../../lib/mylib/storage.js";
-import reference from "../../lib/mylib/nameReference.json" with {type: "json"};
-import { findKeyInOrder } from "../../lib/mylib/utils.js";
 
 export {showPageFromState, moveAndShowPage, appendInfoOnCompletedScreen};
 
-function appendInfoOnCompletedScreen(name, domain, method) {
+function appendInfoOnCompletedScreen(...text_args) {
   const target_elem = document.getElementById("successful-info");
   const fragment = document.createDocumentFragment();
 
-  if (findKeyInOrder(reference, "methods", method, "displayName")) {
-    method = reference["methods"][method]["displayName"];
-  }
-
-  let info = [name, domain, method];
-  info.forEach((text) => {
+  text_args.forEach((text) => {
     let elem = document.createElement("DIV");
     elem.className = "flex justify-center text-lighter mb-2";
     elem.textContent = text;

@@ -1,8 +1,8 @@
 {
-  "description": "Fediverse instance switcher",
+  "description": "[Pre-alpha] Instance switcher",
   "manifest_version": 3,
   "name": "Feditch",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "homepage_url": "https://sumiinix.moe",
   "permissions": ["activeTab", "storage"],
   "host_permissions": ["https://*/*"],

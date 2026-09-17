@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Add account</title>
+    <title>Add redirect</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../lib/oat/oat.min.css" />
     <link rel="stylesheet" href="./style.css" />
@@ -37,7 +37,7 @@
             <p>Set up redirects manually. You can use URL templates, etc.</p>
             <footer>
               <div class="flex justify-end">
-                <button data-to-page="completed">WIP❗️</button>
+                <button data-to-page="manual_form">Proceed to input</button>
               </div>
             </footer>
           </section>
@@ -54,8 +54,8 @@
         <h2>Add from domain</h2>
         <div id="auto_form_card" class="card" data-spinner="large overlay">
           <h3>Enter instance's domain to create a redirect</h3>
-          <form id="auto_form_input">
-            <label>
+          <form id="auto_form_elem">
+            <label data-field>
               Save redirect name *
               <input
                 name="name"
@@ -66,9 +66,9 @@
                 autocomplete="off"
                 required
               />
-              <div id="name-error" class="error-msg"></div>
+              <div id="auto_form_error_name" class="error-msg"></div>
             </label>
-            <label>
+            <label data-field>
               Domain *
               <input
                 name="domain"
@@ -78,10 +78,10 @@
                 maxlength="10000"
                 required
               />
-              <div id="domain-error" class="error-msg"></div>
+              <div id="auto_form_domain_error" class="error-msg"></div>
             </label>
             <input type="submit" value="Add redirect" id="auto_form_add_btn" data-spinner="small"/>
-            <div id="submit-error" class="error-msg"></div>
+            <div id="auto_form_error" class="error-msg"></div>
           </form>
         </div>
         <div>
@@ -89,12 +89,73 @@
         </div>
       </div>
       <div
+          data-page="dialog-username"
+          data-current-page="false">
+        <section class="card flex flex-col">
+          <header class="flex">
+            <p>Please enter your username</p>
+          </header>
+          <form id="username_form">
+            <fieldset class="group">
+              <legend>@</legend>
+              <input id="username_prompt" name="username" placeholder="Username" 
+                  type="text" minlength="1" autocomplete="off" required>
+              <input name="domain" value="@example.com" type="text" disabled>
+            </fieldset>
+          </form>
+          <footer>
+            <div class="hstack justify-end mt-6">
+              <button class="outline" data-dialog-no>Cancel</button>
+              <button data-dialog-yes>Continue</button>
+            </div>
+          </footer>
+        </section>
+      </div>
+      <div
+        data-page="manual_form"
+        data-state="manual_form"
+        data-current-page="false"
+      >
+        <h2>Add from domain</h2>
+        <div id="manual_form_card" class="card" data-spinner="large overlay">
+          <h3>Enter instance's domain to create a redirect</h3>
+          <form id="manual_form_elem">
+            <label data-field>
+              Save redirect name *
+              <input
+                name="name"
+                type="text"
+                placeholder="Switch to example.com"
+                minlength="2"
+                maxlength="30"
+                autocomplete="off"
+                required
+              />
+              <div id="manual_form_error_name" class="error-msg"></div>
+            </label>
+            <label data-field>
+              Redirect method *
+              <select name="select_method" aria-label="Select a method">
+                <option value="URLTemplate">⚠️[WIP] URL Template</option>
+                <option value="ActivityIntentsObject">Activity Intents</option>
+                <option value="Ostatus1.0Subscribe">Ostatus 1.0 Subscribe</option>
+                <option value="WebApURI">⚠️[WIP] web+ap URI</option>
+              </select>
+            </label>
+            <div id="manual_form_select_method_field">
+            </div>
+            <input type="submit" value="Add redirect" id="manual_form_add_btn" data-spinner="small"/>
+            <div id="manual_form_error" class="error-msg"></div>
+          </form>
+        </div>
+        <div>
+          <button class="outline mt-4" data-to-page="add_redirect">Back</button>
+        </div>
+      </div>
+      <!-- <div
         data-page="dialog"
         data-current-page="false"
       >
-        <!-- <div class="hstack mb-6">
-          <h2>dialog</h2>
-        </div> -->
         <section class="card flex flex-col">
           <header class="flex justify-center">
             <h3 id="dialog-head-message">message</h3>
@@ -104,12 +165,12 @@
           </div>
           <footer>
             <div class="hstack justify-end mt-6">
-              <button class="outline" data-dialog-no>cancel</button>
+              <button class="outline" data-dialog-no>Cancel</button>
               <button data-dialog-yes>Yes</button>
             </div>
           </footer>
         </section>
-      </div>
+      </div> -->
       <div
         data-page="completed"
         data-current-page="false"
@@ -129,14 +190,6 @@
           </footer>
         </section>
       </div>
-      <!-- <div
-        data-page="youcanclose"
-        data-current-page="false"
-      >
-        <div class="hstack mb-6">
-          <h2>You can close the tab</h2>
-        </div>
-      </div> -->
     </main>
     <footer class="footer"></footer>
   </body>

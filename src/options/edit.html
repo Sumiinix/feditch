@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Edit</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../lib/oat/oat.min.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h2>Edit redirect</h2>
+      <div id="edit_form_card" class="card" data-spinner="large overlay">
+        <form id="edit_form_elem">
+
+          <label data-field>
+            Name *
+            <input
+                name="name" type="text" placeholder="Switch to example.com"
+                minlength="2" maxlength="30" autocomplete="off"
+                required/>
+              <div id="manual_form_error_name" class="error-msg"></div>
+          </label>
+          <input type="submit" value="Save" id="edit_form_add_btn" data-spinner="small"/>
+        </form>
+      </div>
+      <div>
+        <button class="outline mt-4" data-to-page="add_redirect">Back</button>
+      </div>
+    </main>
+  </body>
+  <script src="../lib/oat/oat.min.js"></script>
+  <script type="module" src="./edit-script/edit.js"></script>
+</html>

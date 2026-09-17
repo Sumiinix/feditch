@@ -53,6 +53,20 @@ export class GenURLFromDomain {
     return webfingerURL;
   }
 
+  getServerHandleWebfingerURL() {
+    const webfingerURL = this.getWebfingerURL();
+    webfingerURL.searchParams.set(
+        "resource", `acct:${this._baseURLObj.hostname}@${this._baseURLObj.hostname}`);
+    return webfingerURL;
+  }
+
+  getHandleWebfingerURL(username) {
+    const webfingerURL = this.getWebfingerURL();
+    webfingerURL.searchParams.set(
+        "resource", `acct:${username}@${this._baseURLObj.hostname}`);
+    return webfingerURL;
+  }
+
   getMastodonAPIInstanceURL(version = "v2") {
     return new URL("".concat("/api", "/",version, "/instance"), this._baseURLObj);
   }
@@ -69,16 +83,22 @@ export class GenURLFromDomain {
 export class RedirectMethodsDiscovery {
   constructor(domain_str) {
     this._URL = new GenURLFromDomain(domain_str);
+    const initResult = {
+          detect: "no",
+          template: ""
+        }
+    this.result = {
+      "ActivityIntentsObject": initResult,
+      "Ostatus1.0Subscribe": initResult
+    }
   }
 
-  // FEP-d556: Server-Level Actor Discovery Using WebFinger
-  async fromServerPrefixWebfinger() {
+  async getJson(url) {
     let response;
     let json;
-    const results = [];
 
     try {
-      response = await fetch(this._URL.getServerWebfingerURL());
+      response = await fetch(url);
     } catch (error) {
       if (error instanceof TypeError) {
         throw new ConnectionError("Cloud not connect to the server");
@@ -87,31 +107,85 @@ export class RedirectMethodsDiscovery {
       }
     }
 
-    if (!response.ok) return [];
+    if (!response.ok) return null;
 
     try {
       json = await response.json();
     } catch {
-      return [];
+      return null;
     }
 
-    if (!json.links) return [];
+    return json;
+  }
+
+  // FEP-d556: Server-Level Actor Discovery Using WebFinger
+  async fromServerPrefixWebfinger() {
+    const found = [];
+    let json = await this.getJson(this._URL.getServerWebfingerURL());
+    if (!json) {
+      return [];
+    }
 
     for(let link of json.links) {
       if (
         link.rel == "https://w3id.org/fep/3b86/Object" ||
         link.rel == "http://ostatus.org/schema/1.0/subscribe"
       ) {
-        const result = {
-          name: reference["fromRelsToMethodName"][link.rel],
-          support: "yes",
-          template: link.template
-        };
-        results.push(result);
+        const discovered_method = reference["fromRelsToMethodName"][link.rel];
+        this.result[discovered_method] = {
+            detect: "yes",
+            template: link.template};
+        found.push(discovered_method);
       }
     }
 
-    return results;
+    return found;
+  }
+
+  async fromApplicationWebfinger() {
+    const found = [];
+    let json = await this.getJson(this._URL.getServerHandleWebfingerURL());
+    if (!json) {
+      return [];
+    }
+
+    for(let link of json.links) {
+      if (
+        link.rel == "https://w3id.org/fep/3b86/Object" ||
+        link.rel == "http://ostatus.org/schema/1.0/subscribe"
+      ) {
+        const discovered_method = reference["fromRelsToMethodName"][link.rel];
+        this.result[discovered_method] = {
+            detect: "yes",
+            template: link.template};
+        found.push(discovered_method);
+      }
+    }
+
+    return found;
+  }
+
+  async fromHandleWebfinger(username) {
+    const found = [];
+    let json = await this.getJson(this._URL.getHandleWebfingerURL(username));
+    if (!json) {
+      return [];
+    }
+
+    for(let link of json.links) {
+      if (
+        link.rel == "https://w3id.org/fep/3b86/Object" ||
+        link.rel == "http://ostatus.org/schema/1.0/subscribe"
+      ) {
+        const discovered_method = reference["fromRelsToMethodName"][link.rel];
+        this.result[discovered_method] = {
+            detect: "yes",
+            template: link.template};
+        found.push(discovered_method);
+      }
+    }
+
+    return found;
   }
 
   async fromMastodonAPIResponse() {
@@ -180,6 +254,16 @@ export class RedirectMethodsDiscovery {
 
     results.push(result);
     return results;
+  }
+
+  getTopMethodFound() {
+    if (this.result["ActivityIntentsObject"].detect == "yes") {
+      return "ActivityIntentsObject";
+    } else if (this.result["Ostatus1.0Subscribe"].detect == "yes") {
+      return "Ostatus1.0Subscribe";
+    }
+
+    return null;
   }
 }
 

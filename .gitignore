@@ -4,3 +4,4 @@ node_modules/
 package-lock.json
 *$*.bkp
 note.drawio
+web-ext-artifacts/

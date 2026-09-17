@@ -10,7 +10,7 @@
   </head>
   <body>
     <header class="header vstack">
-      <h6 class="page-title">Instance Switcher Pre-alpha</h6>
+      <div class="page-title">Instance Switcher Pre-alpha</div>
     </header>
     <main class="container vstack">
       <section>
@@ -18,8 +18,10 @@
         <button class="add-button button outline" data-open-path="add-redirect.html">
           ＋ New
         </button>
+        <div id="redirects-list" class="mt-6"></div>
       </section>
-      <script src="./manage-script/router.js"></script>
+      <script type="module" src="./manage-script/router.js"></script>
+      <script type="module" src="./manage-script/manage.js"></script>
     </main>
     <!-- <footer></footer> -->
   </body>

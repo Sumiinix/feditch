@@ -72,7 +72,6 @@ function watchOpenPageButton() {
   const handler = (event) => {
     const page_path = event.target.dataset.openPath;
     if (!page_path) return;
-    console.log(new URL(page_path, window.location.href).href)
     window.location.href = new URL(page_path, window.location.href).href;
   };
 

@@ -29,8 +29,8 @@ function watchHistoryEvent() {
 }
 
 function watchForms() {
-  new AutoForm();
-  new ManualForm();
+  AutoForm.setup();
+  ManualForm.setup();
 }
 
 (async () => {

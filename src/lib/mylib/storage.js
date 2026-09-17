@@ -3,10 +3,10 @@ export {manageRedirect, manageOAuthApp, manageTempState, manageLatest};
 
 async function getArrayLocalStorage(name) {
   const gettingSave = await browser.storage.local.get(name);
-  if (gettingSave == undefined) {
+  const savedArray = gettingSave[name];
+  if (savedArray == undefined) {
     return [];
   }
-  const savedArray = gettingSave[name];
   if (savedArray.constructor != Array) {
     throw new Error(`appendArrayLocalStorage failed. Not 'Array'.`);
   }
@@ -43,11 +43,48 @@ async function getObjectLocalStorage(name, key) {
 }
 
 const manageRedirect = {
+  _nameAlreadyExist: (redirects, name) => {
+    const find = redirects.find((redirect) => {
+      if (redirect.name == name) {
+        return true;
+      }
+      return false;
+    });
+    if (find) return true;
+    else return false;
+  },
   save: async (data) => {
     await appendArrayLocalStorage("redirects", data);
   },
   load: async () => {
     return await getArrayLocalStorage("redirects");
+  },
+  removeItem: async (index) => {
+    let array = await getArrayLocalStorage("redirects");
+    array.splice(index, 1);
+    await browser.storage.local.set({ "redirects":array });
+  },
+  move: async (from, to) => {
+    let array = await getArrayLocalStorage("redirects");
+    if (typeof array[from] === 'undefined' || typeof array[to] === 'undefined') {
+      throw new Error("Invalid index");
+    }
+    array.splice(to, 0, array.splice(from, 1)[0]);
+    await browser.storage.local.set({ "redirects":array });
+  },
+  edit: async function(index, data) {
+    let array = await getArrayLocalStorage("redirects");
+    if (typeof array[index] === 'undefined') {
+      throw new Error("Invalid index");
+    } else if (!data.name) {
+      throw new Error("Invalid name");
+    }
+    array[index].name = undefined;
+    if (this._nameAlreadyExist(array, data.name)) {
+      throw new Error("Name already exist");
+    }
+    array[index] = data;
+    await browser.storage.local.set({ "redirects":array })
   }
 }
 

@@ -10,10 +10,6 @@ form {
     margin: var(--space-4) 0;
 }
 
-label {
-    margin: var(--space-1) 0;
-}
-
 #auto_form_input {
     margin-bottom: 0;
 }
@@ -25,7 +21,7 @@ label {
     height: 100dvh;
     left: 0;
     top: 0;
-    background: black;
+    background: var(--background);
 }
 
 .header {
@@ -61,4 +57,37 @@ input:user-invalid + .error-msg,
 
 [data-current-page="true"] {
     display: block;
+}
+
+.page-title {
+    font-weight: bold;
+}
+
+#redirects-list {
+    margin: 2rem 0;
+}
+.list-item {
+    padding: var(--space-1) var(--space-4) var(--space-1) var(--space-1);
+    margin: 1rem 0;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+}
+.handle {
+    align-items: center;
+    display: flex;
+    padding: 0rem 1rem;
+    margin: 0rem 0rem;
+}
+.list-name {
+    font-weight: var(--font-bold);
+    font-size: var(--text-4);
+}
+.list-detail {
+    font-size: var(--text-7);
+    color: var(--muted-foreground);
+}
+.menu-button {
+    padding: 0.25rem;
+    width: 1.75rem;
+    height: 1.75rem;
 }

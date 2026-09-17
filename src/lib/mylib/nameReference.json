@@ -16,6 +16,14 @@
     "MastodonAPIV2Search": {
       "displayName": "Mastodon API",
       "type": "api"
+    },
+    "URLTemplate": {
+      "displayName": "URL Template",
+      "type": "template"
+    },
+    "WebApURI": {
+      "displayName": "web+ap URI",
+      "type": "template"
     }
   }
 }

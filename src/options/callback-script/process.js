@@ -72,15 +72,15 @@ const callback = {
     redirectInfo.data["auth_code"] = code;
     redirectInfo.data["token_info"] = token_info;
 
-    try {
-      await delay(200);
-      const verify = await mastodonAPI.verifyToken(redirectInfo);
-      if (!verify) {
-        throw new Error("verifyToken failed");
-      }
-    } catch (error) {
-      _showFailedPage(error, "Error", "Token verification failed");
-    }
+    // try {
+    //   await delay(200);
+    //   const verify = await mastodonAPI.verifyToken(redirectInfo);
+    //   if (!verify) {
+    //     throw new Error("verifyToken failed");
+    //   }
+    // } catch (error) {
+    //   _showFailedPage(error, "Error", "Token verification failed");
+    // }
 
     await manageRedirect.save(redirectInfo);
     await manageLatest.save(redirectInfo.name, redirectInfo.domain, redirectInfo.method);
