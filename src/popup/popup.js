@@ -5,7 +5,7 @@ import reference from "../lib/mylib/nameReference.json" with {type: "json"};
 import { delay } from "../lib/mylib/timer.js";
 
 async function getCurrentURI() {
-  const currentTab = await browser.tabs.query({active:true});
+  const currentTab = await browser.tabs.query({active:true, currentWindow: true});
   if (!currentTab) return null;
   try {
     return new URL(currentTab[0].url);
