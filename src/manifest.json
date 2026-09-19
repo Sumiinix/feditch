@@ -3,7 +3,7 @@
   "manifest_version": 3,
   "name": "Feditch",
   "version": "0.0.4",
-  "homepage_url": "https://sumiinix.moe",
+  "homepage_url": "https://git.sumiinix.moe/Sumiinix/feditch",
   "permissions": ["activeTab", "storage"],
   "host_permissions": ["https://*/*"],
   "browser_specific_settings": {
