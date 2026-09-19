@@ -153,7 +153,8 @@ async function getAPURIFromHTML(dom) {
     }
 
     await delay(100);
-    const response = await fetch(target_url,{
+    const response = await fetch(target_url, {
+      credentials: "include",
       headers: {
         Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       }
@@ -195,7 +196,6 @@ async function getAPURI(url) {
     }
   });
 
-  if(!response.ok) return false;
   const content_type = response.headers.get("Content-Type");
   ap_found = isContentTypeAP(content_type);
   const html_response = content_type.includes("text/html") ? true : false;
@@ -248,7 +248,9 @@ const main = async () => {
         setAPCheckStatus("No redirect target");
       }
     } else {
+      ap_uri = currentURL;
       setAPCheckStatus("Not found");
+      await appendRedirects(container, currentURL, ap_uri, html_url);
     }
   }
 }
