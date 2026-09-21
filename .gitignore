@@ -5,3 +5,5 @@ package-lock.json
 *$*.bkp
 note.drawio
 web-ext-artifacts/
+
+/scripts/.config.json
