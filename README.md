@@ -1,7 +1,8 @@
 # [Pre-alpha] Feditch
 
-<a href="https://git.sumiinix.moe/Sumiinix/feditch">![Static Badge](https://img.shields.io/badge/Forgejo-24283b?style=for-the-badge&color=e0af68&link=https%3A%2F%2Fgit.sumiinix.moe%2FSumiinix%2Ffeditch)</a>  
-<a href="https://dl.sumiinix.moe/download/feditch/latest.signed.xpi">![Static Badge](https://img.shields.io/badge/Get_on_Firefox-24283b?style=for-the-badge&labelColor=24283b&color=9d7cd8&link=https%3A%2F%2Fdl.sumiinix.moe%2Fdownload%2Ffeditch%2Flatest.signed.xpi)</a>
+<a href="https://git.sumiinix.moe/Sumiinix/feditch"><img src="https://img.shields.io/badge/Forgejo-24283b?style=for-the-badge&color=e0af68"></a>  
+<a href="https://dl.sumiinix.moe/download/feditch/latest.signed.xpi">
+<img src="https://img.shields.io/badge/Get_on_Firefox-24283b?style=for-the-badge&labelColor=24283b&color=9d7cd8"></a>
 
 Maybe yet another Fediverse instance switcher
 
