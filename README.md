@@ -21,7 +21,7 @@ Feditch allows you to switch between (ActivityPub-based) Fediverse instances. Ad
 
 If an endpoint that can be used for redirection is exposed on the instance, Feditch can detect the redirection method.
 
-This typically works with [Mastodon](https://joinmastodon.org/), Mastodon-compatible instances, [Misskey](https://misskey-hub.net/en/), [PeerTube](https://joinpeertube.org/), etc. However, it doesn't work with all Mastodon-compatible servers, and PeerTube redirects work between PeerTube instances.
+This typically works with [Mastodon](https://joinmastodon.org/), [Misskey](https://misskey-hub.net/en/), [PeerTube](https://joinpeertube.org/), Mastodon-compatible instances and others. However, whether it works depends on the software.
 
 Endpoints are discovered using Webfinger. Recent versions of Mastodon can find endpoints using only domain information, but older versions of Mastodon, compatible servers, and other software require some kind of username to find endpoints. Therefore, when adding a new redirect in Feditch, you will be prompted to enter a username.
 
@@ -43,7 +43,7 @@ When you open the Feditch extension popup, it will fetch the current URL to chec
 
 ## Install
 
-Signed builds of Firefox are currently available. Chrome builds are planned.
+Signed builds for Firefox are currently available.
 
 - [Install on Firefox](https://dl.sumiinix.moe/download/feditch/latest.signed.xpi)
 
