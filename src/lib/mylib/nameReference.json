@@ -13,10 +13,6 @@
       "displayName": "Ostatus 1.0 Subscribe",
       "type": "template"
     },
-    "MastodonAPIV2Search": {
-      "displayName": "Mastodon API",
-      "type": "api"
-    },
     "URLTemplate": {
       "displayName": "URL Template",
       "type": "template"

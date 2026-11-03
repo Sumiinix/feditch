@@ -1,6 +1,14 @@
+/*global browser*/
 import { manageRedirect } from "../../lib/mylib/storage.js";
 import { getRedirectDetailString } from "../../lib/mylib/redirect.js";
 import { Sortable } from "../../lib/Sortable/sortable.core.esm.js";
+
+function listenInfoButton() {
+  const infoElem = document.getElementById("info-button");
+  infoElem.addEventListener("click", () => {
+    browser.tabs.update({ url: "/options/info.html"});
+  })
+}
 
 async function loadRedirects() {
   const old_redirects_list = document.getElementById("redirects-list");
@@ -37,15 +45,11 @@ async function loadRedirects() {
         </svg>`;
     handle.className = "handle";
 
-    const detail_elem = document.createElement('DIV');
     // const drop_button = document.createElement('BUTTON');
     const drop_button_target = document.createElement('ot-dropdown');
     row.dataset.index = index;
 
     name_elem.textContent = item.name;
-
-    const detail_str = getRedirectDetailString(item);
-    detail_elem.textContent = detail_str;
 
     const popup_num = Number(index);
 
@@ -77,7 +81,6 @@ async function loadRedirects() {
     drop_button_target.innerHTML = drop_button;
     row.classList.add("list-item", "hstack", "justify-between");
     name_elem.classList.add("list-name");
-    detail_elem.classList.add("list-detail");
     // drop_button.classList.add("outline");
 
     const edit_button = drop_button_target.querySelector("[data-manage-action=edit]");
@@ -102,10 +105,8 @@ async function loadRedirects() {
     });
 
     wrap.appendChild(handle);
-    wrap.appendChild(detail_elem);
 
     info.appendChild(name_elem);
-    info.appendChild(detail_elem);
     wrap.appendChild(info);
     row.appendChild(wrap);
     row.appendChild(drop_button_target);
@@ -136,5 +137,6 @@ async function loadRedirects() {
 }
 
 (async () => {
+  listenInfoButton();
   await loadRedirects();
 })();

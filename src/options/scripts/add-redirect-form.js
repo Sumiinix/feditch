@@ -1,6 +1,6 @@
 import { manageRedirect } from "../../lib/mylib/storage.js";
 import { RedirectMethodsDiscovery } from "../../lib/mylib/networkUtils.js";
-import { moveAndShowPage, appendInfoOnCompletedScreen } from "./page-control.js";
+import { moveAndShowPage, appendInfoOnCompletedScreen } from "./add-redirect-page.js";
 import { delay } from "../../lib/mylib/timer.js";
 
 const inputRegexp = {
@@ -16,51 +16,14 @@ const inputRegexp = {
   _username_reg : /^(?:acct:)(.+)@.+|@?((?:(?!\/).)+)@(?:(?!\/).)+$/i,
 }
 
-// async function showAskPage(head_message, message, no_text="Cancel", yes_text="Confirm") {
-//   const head_msg_target_elem = document.getElementById("dialog-head-message");
-//   const msg_target_elem = document.getElementById("dialog-message");
-//   const no_elem = document.querySelector("[data-dialog-no]");
-//   const yes_elem = document.querySelector("[data-dialog-yes]");
-
-//   head_msg_target_elem.textContent = head_message;
-//   msg_target_elem.textContent = message;
-//   no_elem.textContent = no_text;
-//   yes_elem.textContent = yes_text;
-
-//   let no_handler;
-//   let yes_handler;
-//   let click_promise = new Promise((resolve) => {
-//     no_handler = () => { 
-//       resolve(false);
-//     };
-//     yes_handler = () => { 
-//       resolve(true);
-//     };
-//     no_elem.addEventListener("click", no_handler);
-//     yes_elem.addEventListener("click", yes_handler);
-//   });
-
-//   moveAndShowPage("dialog");
-
-//   const yes_or_no = await click_promise;
-
-//   no_elem.removeEventListener("click", no_handler);
-//   yes_elem.removeEventListener("click", yes_handler);
-
-//   moveAndShowPage("auto_form");
-//   return yes_or_no;
-// }
-
-class ProcessAddRedirect {
+class AddRedirectProcessor {
   constructor(
     redirect_name, domain, user_name
   ) {
     this.data = {
       name: redirect_name,
-      method: "",
-      redirect_info: {
-        domain: domain,
-      },
+      domain: domain,
+      methods: [],
       user_name: user_name
     }
     this.discovery;
@@ -73,19 +36,20 @@ class ProcessAddRedirect {
 
   _setDataFromResult(method) {
     const data = this.data;
-    const redirect_info = this.data.redirect_info;
 
     switch (method) {
       case "ActivityIntentsObject":
-        data.method = method;
-        redirect_info.template = this.discovery.result[method].template;
+        data.methods.push({
+          name: method,
+          template: this.discovery.result[method].template
+        });
         break;
-    
       case "Ostatus1.0Subscribe":
-        data.method = method;
-        redirect_info.template = this.discovery.result[method].template;
+        data.methods.push({
+          name: method,
+          template: this.discovery.result[method].template
+        });
         break;
-
       default:
         break;
     }
@@ -94,13 +58,13 @@ class ProcessAddRedirect {
   async save() {
     const entry = {
       name: this.data.name,
-      method: this.data.method,
-      redirect_info: this.data.redirect_info };
+      domain: this.data.domain,
+      methods: this.data.methods };
     await manageRedirect.save(entry);
   }
   
   async discoverMethodFromDomain(asyncUsernameAsker) {
-    const domain = this.data.redirect_info.domain;
+    const domain = this.data.domain;
     const discovery = this._newDiscovery(domain);
 
     let found = await discovery.fromServerPrefixWebfinger();
@@ -130,7 +94,7 @@ class ProcessAddRedirect {
   }
 
   async discoverActivityIntent() {
-    const domain = this.data.redirect_info.domain;
+    const domain = this.data.domain;
     const discovery = this._newDiscovery(domain);
 
     await discovery.fromServerPrefixWebfinger();
@@ -144,7 +108,7 @@ class ProcessAddRedirect {
   }
 
   async discoverOstatusSubscribe(asyncUsernameAsker) {
-    const domain = this.data.redirect_info.domain;
+    const domain = this.data.domain;
     const discovery = this._newDiscovery(domain);
 
     let found = await discovery.fromApplicationWebfinger();
@@ -357,12 +321,12 @@ export const AutoForm = {
     let extracted_username = Form.extractUserStr(domain_input);
     const ask_username = async () => await Form.askUsername(extracetee_domain, "auto_form");
 
-    const redirect = new ProcessAddRedirect(name_input, extracetee_domain, extracted_username);
+    const redirect = new AddRedirectProcessor(name_input, extracetee_domain, extracted_username);
     let found = await redirect.discoverMethodFromDomain(ask_username);
 
     if (found) {
       await redirect.save();
-      appendInfoOnCompletedScreen(redirect.data.name, redirect.data.redirect_info.domain);
+      appendInfoOnCompletedScreen(redirect.data.name, redirect.data.domain);
       moveAndShowPage("completed");
       return true;
     }
@@ -467,7 +431,7 @@ export const ManualForm = {
       throw new Error("This name already exists");
     }
 
-    let redirect = new ProcessAddRedirect(name_input);
+    let redirect = new AddRedirectProcessor(name_input);
 
     let success;
     let success_info = [name_input];
@@ -477,7 +441,7 @@ export const ManualForm = {
         if(!extracted_domain) {
           return false;
         }
-        redirect.data.redirect_info.domain = extracted_domain;
+        redirect.data.domain = extracted_domain;
         success = await redirect.discoverActivityIntent();
         success_info.push(extracted_domain);
         break;
@@ -488,7 +452,7 @@ export const ManualForm = {
         if(!extracted_domain) {
           return false;
         }
-        redirect.data.redirect_info.domain = extracted_domain;
+        redirect.data.domain = extracted_domain;
         let extracted_username = Form.extractUserStr(domain_input);
         redirect.data.user_name = extracted_username;
         const ask_username = async () => await Form.askUsername(extracted_domain, "manual_form");

@@ -1,5 +1,5 @@
-import { showPageFromState, moveAndShowPage, closeOwnPopupOrTab } from "./page-control.js";
-import { AutoForm, ManualForm } from "./form-control.js";
+import { showPageFromState, moveAndShowPage, closeOwnPopupOrTab } from "./add-redirect-page.js";
+import { AutoForm, ManualForm } from "./add-redirect-form.js";
 
 function watchButtons() {
   const nav_buttons = document.querySelectorAll("button[data-to-page]");

@@ -6,8 +6,12 @@
 
 Maybe yet another Fediverse instance switcher
 
-> [!NOTE]
-> This is currently in **pre-alpha**. It may contain breaking changes.
+> [!WARNING]
+> This is currently in **pre-alpha**. It may contain breaking changes.  
+
+> [!IMPORTANT]
+> The following versions are not compatible. Please reset the extension's data.
+> - Between 0.0.5 and 0.0.6.
 
 Feditch allows you to switch between (ActivityPub-based) Fediverse instances. Add the server where your account exists in the settings. To redirect, open the extension on the ActivityPub compatible post page and click the destination you want to redirect to.
 

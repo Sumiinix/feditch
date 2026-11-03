@@ -9,16 +9,15 @@
   <body>
     <main class="container">
       <h2>Edit redirect</h2>
-      <div id="edit_form_card" class="card" data-spinner="large overlay">
-        <form id="edit_form_elem">
-
+      <div id="edit-form-card" class="card" data-spinner="large overlay">
+        <form id="edit-form-elem">
           <label data-field>
             Name *
             <input
                 name="name" type="text" placeholder="Switch to example.com"
                 minlength="2" maxlength="30" autocomplete="off"
                 required/>
-              <div id="manual_form_error_name" class="error-msg"></div>
+              <div id="manual-form-error-name" class="error-msg"></div>
           </label>
           <input type="submit" value="Save" id="edit_form_add_btn" data-spinner="small"/>
         </form>
@@ -29,5 +28,5 @@
     </main>
   </body>
   <script src="../lib/oat/oat.min.js"></script>
-  <script type="module" src="./edit-script/edit.js"></script>
+  <script type="module" src="./scripts/edit.js"></script>
 </html>

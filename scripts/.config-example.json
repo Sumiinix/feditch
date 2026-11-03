@@ -3,6 +3,7 @@
     "manifest_path": "./src/manifest.json",
     "build_dist_path": "./web-ext-artifacts",
     "update_link_prefix": "https://dl.example.com/download/feditch/",
-    "update_json_output": "./web-ext-artifacts/updates.json"
+    "update_json_output": "./web-ext-artifacts/updates.json",
+    "copy_latest": true
   }
 }

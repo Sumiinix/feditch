@@ -1,5 +1,5 @@
 /*global browser*/
-export {manageRedirect, manageOAuthApp, manageTempState, manageLatest};
+export {manageRedirect, manageOAuthApp, manageTempState, manageLatest, resetAllData};
 
 async function getArrayLocalStorage(name) {
   const gettingSave = await browser.storage.local.get(name);
@@ -86,7 +86,7 @@ const manageRedirect = {
     array[index] = data;
     await browser.storage.local.set({ "redirects":array })
   }
-}
+};
 
 const manageOAuthApp = {
   save: async (domain_str, data) => {
@@ -111,7 +111,7 @@ const manageOAuthApp = {
     }
     return appdata;
   }
-}
+};
 
 const manageTempState = {
   save: async (data) => {
@@ -127,7 +127,7 @@ const manageTempState = {
   clear: async () => {
     await browser.storage.local.remove("auth_state");
   }
-}
+};
 
 const manageLatest = {
   save: async (name, domain, method) => {
@@ -144,4 +144,8 @@ const manageLatest = {
   clear: async () => {
     await browser.storage.local.remove("latest");
   }
-}
+};
+
+const resetAllData = async () => {
+  await browser.storage.local.clear();
+};

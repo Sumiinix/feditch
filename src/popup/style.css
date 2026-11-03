@@ -27,11 +27,16 @@
 }
 .menu-button {
     /* padding: 0rem; */
-    font-size: 1.25rem;
-    width: 1.25rem;
-    height: 1.25rem;
+    display: flex;
+    font-size: 24px;
     cursor: pointer;
 }
 .success-color {
     color: var(--success);
+}
+.interactive {
+    cursor: pointer;
+}
+#settings:hover {
+    background-color: rgb(from var(--muted) r g b / .5);
 }
