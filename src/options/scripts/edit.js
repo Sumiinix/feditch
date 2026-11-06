@@ -43,8 +43,8 @@ import { manageRedirect } from "../../lib/mylib/storage.js";
 
   form.elements.name.value = redirect.name;
 
-  const back_elem = document.querySelector("[data-to-page=add_redirect]");
-  back_elem.addEventListener("click", () => {
+  const backElem = document.querySelector("[data-to-page=add_redirect]");
+  backElem.addEventListener("click", () => {
     window.parent.closePopup();
   });
 })();

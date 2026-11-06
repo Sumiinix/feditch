@@ -2,15 +2,15 @@ import { showPageFromState, moveAndShowPage, closeOwnPopupOrTab } from "./add-re
 import { AutoForm, ManualForm } from "./add-redirect-form.js";
 
 function watchButtons() {
-  const nav_buttons = document.querySelectorAll("button[data-to-page]");
-  for (let button of nav_buttons) {
+  const naviButtons = document.querySelectorAll("button[data-to-page]");
+  for (let button of naviButtons) {
     button.addEventListener("click", (event) => {
       moveAndShowPage(event.target.dataset.toPage);
     });
   }
 
-  const complete_button = document.querySelectorAll("[data-close]");
-  for (let button of complete_button) {
+  const completeButton = document.querySelectorAll("[data-close]");
+  for (let button of completeButton) {
     button.addEventListener("click", () => {
       closeOwnPopupOrTab();
     });
