@@ -14,16 +14,6 @@ form {
     margin-bottom: 0;
 }
 
-.popup {
-    z-index: 2000;
-    position: fixed;
-    width: 100%;
-    height: 100dvh;
-    left: 0;
-    top: 0;
-    background: var(--background);
-}
-
 .header {
     margin: var(--space-2) 0;
     padding: var(--space-2) var(--space-4);
@@ -51,16 +41,22 @@ input:user-invalid + .error-msg,
     text-wrap: wrap;
 }
 
+[data-display="false"],
 [data-current-page="false"] {
     display: none;
 }
 
+[data-display="true"],
 [data-current-page="true"] {
     display: block;
 }
 
 .page-title {
     font-weight: bold;
+}
+
+#info-button:hover {
+    background-color: rgba(124, 124, 124, 0.292);
 }
 
 #redirects-list {

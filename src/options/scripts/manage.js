@@ -1,13 +1,45 @@
-/*global browser*/
+// /*global browser*/
 import { manageRedirect } from "../../lib/mylib/storage.js";
-import { getRedirectDetailString } from "../../lib/mylib/redirect.js";
+// import { getRedirectDetailString } from "../../lib/mylib/redirect.js";
 import { Sortable } from "../../lib/Sortable/sortable.core.esm.js";
 
-function listenInfoButton() {
-  const infoElem = document.getElementById("info-button");
-  infoElem.addEventListener("click", () => {
-    browser.tabs.update({ url: "/options/info.html"});
-  })
+class Tab {
+  constructor(buttonsElem, contentsElem) {
+    this._buttonsElem = buttonsElem;
+    this._contentsElem = contentsElem;
+    buttonsElem.addEventListener("click", this._onClick.bind(this));
+  }
+
+  switchTo(tabName) {
+    const previousContent = this._contentsElem.querySelector('[data-display="true"]');
+    const content = this._contentsElem.querySelector(`[data-name=${tabName}]`);
+    
+    previousContent.dataset.display = "false";
+    content.dataset.display = "true";
+  }
+
+  _onClick(event) {
+    const action = event.target.dataset.action;
+
+    switch (action) {
+      case "switchTo":
+      this.switchTo(event.target.dataset.name);
+      break;
+
+      default:
+        break;
+    }
+  }
+}
+
+function watchOpenPageButton() {
+  const handler = (event) => {
+    const pagePath = event.target.dataset.openPath;
+    if (!pagePath) return;
+    window.location.href = new URL(pagePath, window.location.href).href;
+  };
+
+  document.addEventListener("click", handler);
 }
 
 async function loadRedirects() {
@@ -76,7 +108,7 @@ async function loadRedirects() {
             </svg>
             Delete
           </button>
-        </menu>`
+        </menu>`;
 
     drop_button_target.innerHTML = drop_button;
     row.classList.add("list-item", "hstack", "justify-between");
@@ -137,6 +169,11 @@ async function loadRedirects() {
 }
 
 (async () => {
-  listenInfoButton();
   await loadRedirects();
+  watchOpenPageButton();
+
+  new Tab(
+    document.getElementById("header-tab"),
+    document.getElementById("tab-contents")
+  );
 })();
