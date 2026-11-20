@@ -1,5 +1,5 @@
 {
-  "description": "[Pre-alpha] Instance switcher",
+  "description": "Instance switcher",
   "manifest_version": 3,
   "name": "Feditch",
   "version": "0.0.7",
@@ -11,7 +11,8 @@
       "id": "feditch@sumiinix.moe",
       "data_collection_permissions": {
         "required": ["none"]
-      }
+      },
+      "update_url": "https://dl.sumiinix.moe/download/feditch/updates.json"
     }
   },
   "action": {
