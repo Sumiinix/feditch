@@ -1,4 +1,4 @@
-# [Pre-alpha] Feditch
+# [Beta] Feditch
 
 <a href="https://git.sumiinix.moe/Sumiinix/feditch"><img src="https://img.shields.io/badge/Forgejo-24283b?style=for-the-badge&color=e0af68"></a>  
 <a href="https://dl.sumiinix.moe/download/feditch/latest.signed.xpi">
@@ -7,7 +7,7 @@
 Maybe yet another Fediverse instance switcher
 
 > [!WARNING]
-> This is currently in **pre-alpha**. It may contain breaking changes.  
+> This is currently in **beta**. It may contain breaking changes.  
 
 > [!IMPORTANT]
 > The following versions are not compatible. Please reset the extension's data.

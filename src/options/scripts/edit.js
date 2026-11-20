@@ -45,6 +45,6 @@ import { manageRedirect } from "../../lib/mylib/storage.js";
 
   const backElem = document.querySelector("[data-to-page=add_redirect]");
   backElem.addEventListener("click", () => {
-    window.parent.closePopup();
+    window.history.back();
   });
 })();

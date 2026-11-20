@@ -1,20 +1,8 @@
 import { manageRedirect } from "../../lib/mylib/storage.js";
 import { RedirectMethodsDiscovery } from "../../lib/mylib/networkUtils.js";
-import { moveAndShowPage, appendInfoOnCompletedScreen } from "./add-redirect-page.js";
+import { showPage, appendInfoOnCompletedScreen } from "./add-redirect.js";
 import { delay } from "../../lib/mylib/timer.js";
-
-const inputRegexp = {
-  // Base domain check
-  _domain_reg: /^(?!\.)(?:(?!\.{2,}|[?#/@\s]).)+(?<!:)$/i,
-
-  _domain_from_url_reg: /^(?:https|http):\/\/((?:(?!\/).)+).*$/i,
-  // Result Match Group 1 or Match Group2
-  _domain_from_acct_reg: /^(?:(?:acct:)@?.+@(.+)|(?:(?!\/).)+@((?:(?!\/).)+))$/i,
-  
-  _domain_from_pathlike_reg : /^([^/\s@]+)\/(?:.*)$/i,
-
-  _username_reg : /^(?:acct:)(.+)@.+|@?((?:(?!\/).)+)@(?:(?!\/).)+$/i,
-}
+import UriTemplate from "../../lib/uri-templates/uri-templates.mjs";
 
 class AddRedirectProcessor {
   constructor(
@@ -63,8 +51,8 @@ class AddRedirectProcessor {
     await manageRedirect.save(entry);
   }
   
-  async discoverMethodFromDomain(asyncUsernameAsker) {
-    const domain = this.data.domain;
+  async discoverMethodFromDomain(domain, asyncUsernameAsker) {
+    this.data.domain = domain;
     const discovery = this._newDiscovery(domain);
 
     let found = await discovery.fromServerPrefixWebfinger();
@@ -93,8 +81,8 @@ class AddRedirectProcessor {
     return false;
   }
 
-  async discoverActivityIntent() {
-    const domain = this.data.domain;
+  async discoverActivityIntent(domain) {
+    this.data.domain = domain;
     const discovery = this._newDiscovery(domain);
 
     await discovery.fromServerPrefixWebfinger();
@@ -107,8 +95,8 @@ class AddRedirectProcessor {
     }
   }
 
-  async discoverOstatusSubscribe(asyncUsernameAsker) {
-    const domain = this.data.domain;
+  async discoverOstatusSubscribe(domain, asyncUsernameAsker) {
+    this.data.domain = domain;
     const discovery = this._newDiscovery(domain);
 
     let found = await discovery.fromApplicationWebfinger();
@@ -131,99 +119,163 @@ class AddRedirectProcessor {
       return false;
     }
   }
+
+  setTemplateMethod(templateStr) {
+    if (!templateStr.includes("{id}")) {
+      throw new Error('"{id}" is not included in template string.');
+    }
+
+    if (!templateStr.includes("://")) {
+      throw new Error('Invalid URL');
+    }
+
+    // Try
+    new UriTemplate(templateStr).fill({id: "https://example.com"});
+
+    this.data.domain = null;
+    this.data.methods.push({
+      name: "URLTemplate",
+      template: templateStr
+    });
+    return true;
+  }
 }
 
-const Form = {
-  async isNameAlreadyExist(name_input) {
-    const redirects = await manageRedirect.load();
-    const find = redirects.find((redirect) => {
-      if (redirect.name == name_input) {
-        return true;
-      }
-      return false;
-    });
-    if (find) return true;
-    else return false;
-  },
+const regexp = {
+  // Check domain valid
+  "domain": /^(?!\.)(?:(?!\.{2,}|[?#/@\s]).)+(?<!:)$/i,
+  "domainFromURL": /^(?:https|http):\/\/((?:(?!\/).)+).*$/i,
+  // Result Match Group 1 or Match Group2
+  "domainFromAcct": /^(?:(?:acct:)@?.+@(.+)|(?:(?!\/).)+@((?:(?!\/).)+))$/i,
+  "domainFromPathlike": /^([^/\s@]+)\/(?:.*)$/i,
+  "username" : /^(?:acct:)(.+)@.+|@?((?:(?!\/).)+)@(?:(?!\/).)+$/i,
+};
 
-  async askUsername(domain_str, prev_page) {
-    const username_form = document.getElementById("username_form");
-    const username_elem = username_form.elements.username;
-    const domain_elem = username_form.elements.domain;
-
-    const no_elem = document.querySelector("[data-page=dialog-username] [data-dialog-no]");
-    const yes_elem = document.querySelector("[data-page=dialog-username] [data-dialog-yes]");
-    let username;
-
-    domain_elem.setAttribute("value", `@${domain_str}`);
-
-    let no_handler;
-    let yes_handler;
-    let click_promise = new Promise((resolve) => {
-      no_handler = () => {
-        resolve(null);
-      };
-      yes_handler = () => {
-        resolve(username_elem.value);
-      };
-      no_elem.addEventListener("click", no_handler);
-      yes_elem.addEventListener("click", yes_handler);
-    });
-
-    moveAndShowPage("dialog-username");
-
-    username = await click_promise;
-
-    no_elem.removeEventListener("click", no_handler);
-    yes_elem.removeEventListener("click", yes_handler);
-
-    moveAndShowPage(prev_page);
-    return username;
-  },
-
-  validateDomain(elem) {
-    if( !Form.isValidDomain(elem.value) ) {
-      elem.setCustomValidity("Invalid domain");
-      return;
+async function isNameAlreadyExist(name_input) {
+  const redirects = await manageRedirect.load();
+  const find = redirects.find((redirect) => {
+    if (redirect.name == name_input) {
+      return true;
     }
-    elem.setCustomValidity("");
-  },
+    return false;
+  });
+  if (find) return true;
+  else return false;
+}
 
-  isValidDomain(domain_str) {
-    if (domain_str.length >= 1024) {
-      return false;
+async function askUsername(domain_str, prev_page) {
+  const username_form = document.getElementById("username_form");
+  const username_elem = username_form.elements.username;
+  const domain_elem = username_form.elements.domain;
+
+  const no_elem = document.querySelector("[data-page=dialog-username] [data-dialog-no]");
+  const yes_elem = document.querySelector("[data-page=dialog-username] [data-dialog-yes]");
+  let username;
+
+  domain_elem.setAttribute("value", `@${domain_str}`);
+
+  let no_handler;
+  let yes_handler;
+  let click_promise = new Promise((resolve) => {
+    no_handler = () => {
+      resolve(null);
+    };
+    yes_handler = () => {
+      resolve(username_elem.value);
+    };
+    no_elem.addEventListener("click", no_handler);
+    yes_elem.addEventListener("click", yes_handler);
+  });
+
+  showPage("dialog-username");
+
+  username = await click_promise;
+
+  no_elem.removeEventListener("click", no_handler);
+  yes_elem.removeEventListener("click", yes_handler);
+
+  showPage(prev_page);
+  return username;
+}
+
+function validateDomain(elem) {
+  if( !isValidDomain(elem.value) ) {
+    elem.setCustomValidity("Invalid domain");
+    return;
+  }
+  elem.setCustomValidity("");
+}
+
+function isValidDomain(domain_str) {
+  if (domain_str.length >= 1024) {
+    return false;
+  }
+
+  if (regexp["domainFromURL"].test(domain_str)) {
+    domain_str = domain_str.match(regexp["domainFromURL"])[1];
+  } else if (regexp["domainFromAcct"].test(domain_str)) {
+    const match = domain_str.match(regexp["domainFromAcct"]);
+    domain_str = match[1] || match[2];
+  }
+
+  return regexp["domain"].test(domain_str);
+}
+
+function extractDomainStr(domain_str) {
+  if ( regexp["domainFromURL"].test(domain_str) ) {
+    return domain_str.match(regexp["domainFromURL"])[1];
+  } else if ( regexp["domainFromAcct"].test(domain_str) ) {
+    const match = domain_str.match(regexp["domainFromAcct"]);
+    return match[1] || match[2];
+  } else if ( regexp["domainFromPathlike"].test(domain_str) ) {
+    return domain_str.match(regexp["domainFromPathlike"])[1];
+  } else if ( regexp["domain"].test(domain_str) ) {
+    return domain_str.match(regexp["domain"])[0];
+  }
+  return null;
+}
+
+function extractUserStr(string) {
+    if ( regexp["username"].test(string) ) {
+    const match = string.match(regexp["username"]);
+    return match[1] || match[2];
+  } 
+  return null;
+}
+
+class AddRedirectForm {
+  constructor(context) {
+    this._elems = context["elements"];
+
+    if (context["options"]["preventSubmitByEnter"]) {
+      this._elems.form.addEventListener("keydown", (event) => {
+        if ( !(event.target.nodeName == "INPUT") ) return;
+
+        if (event.key == "Enter") {
+          event.preventDefault();
+        }
+      });
     }
 
-    if (inputRegexp._domain_from_url_reg.test(domain_str)) {
-      domain_str = domain_str.match(inputRegexp._domain_from_url_reg)[1];
-    } else if (inputRegexp._domain_from_acct_reg.test(domain_str)) {
-      const match = domain_str.match(inputRegexp._domain_from_acct_reg);
-      domain_str = match[1] || match[2];
+    if (context["submitHandler"]) {
+      this._elems.form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        this.busy(true);
+        await context["submitHandler"](event);
+        // await delay(1000); // Debug
+        this.busy(false);
+      });
     }
+  }
 
-    return inputRegexp._domain_reg.test(domain_str);
-  },
-
-  extractDomainStr(domain_str) {
-    if ( inputRegexp._domain_from_url_reg.test(domain_str) ) {
-      return domain_str.match(inputRegexp._domain_from_url_reg)[1];
-    } else if ( inputRegexp._domain_from_acct_reg.test(domain_str) ) {
-      const match = domain_str.match(inputRegexp._domain_from_acct_reg);
-      return match[1] || match[2];
-    } else if ( inputRegexp._domain_from_pathlike_reg.test(domain_str) ) {
-      return domain_str.match(inputRegexp._domain_from_pathlike_reg)[1];
-    } else if ( inputRegexp._domain_reg.test(domain_str) ) {
-      return domain_str.match(inputRegexp._domain_reg)[0];
+  busy(state) {
+    if (state) {
+      this._elems.submitBtn.setAttribute("disabled", "true");
+      this._elems.busyVisual.setAttribute("aria-busy", "true");
+    } else {
+      this._elems.submitBtn.removeAttribute("disabled");
+      this._elems.busyVisual.setAttribute("aria-busy", "false");
     }
-    return null;
-  },
-
-  extractUserStr(string) {
-     if ( inputRegexp._username_reg.test(string) ) {
-      const match = string.match(inputRegexp._username_reg);
-      return match[1] || match[2];
-    } 
-    return null;
   }
 }
 
@@ -278,7 +330,7 @@ export const AutoForm = {
     };
 
     this._setupTextInput(this.elems.name_input, this.elems.name_error);
-    this._setupTextInput(this.elems.domain_input, this.elems.domain_error, Form.validateDomain);
+    this._setupTextInput(this.elems.domain_input, this.elems.domain_error, validateDomain);
 
     this.elems.form.addEventListener("submit", addRedirectAction);
     this.elems.form.addEventListener("keydown", preventEnterKeyInInput);
@@ -308,26 +360,26 @@ export const AutoForm = {
     const name_input = this.elems.name_input.value;
     const domain_input = this.elems.domain_input.value;
     
-    const name_exist = await Form.isNameAlreadyExist(name_input);
+    const name_exist = await isNameAlreadyExist(name_input);
     if(name_exist) {
       throw new Error("This name already exists");
     }
 
-    let extracetee_domain = Form.extractDomainStr(domain_input);
-    if(!extracetee_domain) {
+    let extractedDomain = extractDomainStr(domain_input);
+    if(!extractedDomain) {
       return false;
     }
 
-    let extracted_username = Form.extractUserStr(domain_input);
-    const ask_username = async () => await Form.askUsername(extracetee_domain, "auto_form");
+    let extracted_username = extractUserStr(domain_input);
+    const ask_username = async () => await askUsername(extractedDomain, "auto_form");
 
-    const redirect = new AddRedirectProcessor(name_input, extracetee_domain, extracted_username);
+    const redirect = new AddRedirectProcessor(name_input, extractedDomain, extracted_username);
     let found = await redirect.discoverMethodFromDomain(ask_username);
 
     if (found) {
       await redirect.save();
-      appendInfoOnCompletedScreen(redirect.data.name, redirect.data.domain);
-      moveAndShowPage("completed");
+      appendInfoOnCompletedScreen(redirect.data.name);
+      showPage("completed");
       return true;
     }
 
@@ -336,78 +388,65 @@ export const AutoForm = {
   }
 }
 
-export const ManualForm = {
+export const manualForm = {
   setup() {
-    const form_elem = document.getElementById("manual_form_elem");
+    const formElem = document.getElementById("manual_form_elem");
 
     this.elems = {
-      card: document.getElementById("manual_form_card"),
-      form: form_elem,
-      form_error: document.getElementById("manual_form_error"),
-      name_input: form_elem.elements.name,
-      name_error: document.getElementById("manual_form_error_name"),
-      template_input: form_elem.elements.template,
-      template_error: document.getElementById("manual_form_template_error"),
-      domain_input: form_elem.elements.domain,
-      domain_error: document.getElementById("manual_form_domain_error"),
-      select_method: form_elem.elements.select_method,
-      add_button: document.getElementById("manual_form_add_btn")
+      busyVisual: document.getElementById("manual_form_card"),
+      form: formElem,
+      formErr: document.getElementById("manual_form_error"),
+      submitBtn: document.getElementById("manual_form_add_btn"),
+      inputs: {
+        name: formElem.elements.name,
+        nameErr: document.getElementById("manual_form_error_name"),
+        template: formElem.elements.template,
+        templateErr: document.getElementById("manual_form_template_error"),
+        domain: formElem.elements.domain,
+        domainErr: document.getElementById("manual_form_domain_error"),
+        methodSelect: formElem.elements.methodSelect
+      }
     }
 
-    this.toggleInputs(this.elems.select_method.value);
-    this._eventListener();
-  },
-
-  _eventListener() {
-    const addRedirectAction = async (event) => {
-      event.preventDefault();
-
-      this.elems.form_error.dataset.errorMsg = "false";
-      this.elems.card.setAttribute("aria-busy", "true");
-      this.elems.add_button.setAttribute("disabled", "true");
-
-      try {
-        const success = await this._processAddRedirect();
-        if (!success) {
-          throw new Error("Failed to add redirect.");
-        }
-      } catch (error) {
-        this.elems.form_error.textContent = `${error}`;
-        this.elems.form_error.dataset.errorMsg = "true";
-        console.log(`${error}`);
-      } finally {
-        // await delay(1000);
-        this.elems.card.setAttribute("aria-busy", "false");
-        this.elems.add_button.removeAttribute("disabled");
-      }
-    };
-
-    const preventEnterKeyInInput = (event) => {
-      if ( !(event.target.nodeName == "INPUT") ) return;
-
-      if (event.key == "Enter") {
-        event.preventDefault();
-      }
-    };
-
-    const toggleInputElemHandler = (event) => {
+    this.toggleInputs(this.elems["inputs"]["methodSelect"].value);
+    this._setupTextInput(this.elems["inputs"]["name"], this.elems["inputs"]["nameErr"]);
+    this.elems["inputs"]["methodSelect"].addEventListener("change", (event) => {
       this.toggleInputs(event.target.value);
+    });
+
+    const context = {
+      "elements": this.elems,
+      "options": {
+        "preventSubmitByEnter": true
+      },
+      "submitHandler": this.submitHandler.bind(this)
     };
 
-    this._setupTextInput(this.elems.name_input, this.elems.name_error);
-
-    this.elems.form.addEventListener("submit", addRedirectAction);
-    this.elems.form.addEventListener("keydown", preventEnterKeyInInput);
-    this.elems.select_method.addEventListener("change", toggleInputElemHandler);
+    this.newForm = new AddRedirectForm(context);
   },
 
-  _setupTextInput(input_elem, error_elem, customValidationHandler) {
+  async submitHandler() {
+    this.elems["formErr"].dataset.errorMsg = "false";
+
+    try {
+      const success = await this._processAddRedirect();
+      if (!success) {
+        throw new Error("Failed to add redirect.");
+      }
+    } catch (error) {
+      this.elems["formErr"].textContent = `${error}`;
+      this.elems["formErr"].dataset.errorMsg = "true";
+      console.log(`${error}`);
+    }
+  },
+
+  _setupTextInput(inputElem, errorElem, customValidationHandler) {
     const removeFormErrorMsg = () => {
-      this.elems.form_error.dataset.errorMsg = "false";
+      this.elems["formErr"].dataset.errorMsg = "false";
     }
 
     const setErrorMessage = () => {
-      error_elem.textContent = `${input_elem.validationMessage}`;
+      errorElem.textContent = `${inputElem.validationMessage}`;
     };
 
     const handleInput = (event) => {
@@ -417,47 +456,52 @@ export const ManualForm = {
       setErrorMessage();
     }
 
-    input_elem.addEventListener("input", handleInput);
-    input_elem.addEventListener("focus", removeFormErrorMsg);
+    inputElem.addEventListener("input", handleInput);
+    inputElem.addEventListener("focus", removeFormErrorMsg);
   },
 
   async _processAddRedirect() {
-    const selected_method = this.elems.select_method.value;
-    const name_input = this.elems.name_input.value;
-    const domain_input = this.elems.domain_input.value;
+    const nameInput = this.elems["inputs"]["name"].value;
+    const selectedMethod = this.elems["inputs"]["methodSelect"].value;
+    const nameExist = await isNameAlreadyExist(nameInput);
 
-    const name_exist = await Form.isNameAlreadyExist(name_input);
-    if(name_exist) {
+    if(nameExist) {
       throw new Error("This name already exists");
     }
 
-    let redirect = new AddRedirectProcessor(name_input);
+    let redirect = new AddRedirectProcessor(nameInput);
 
     let success;
-    let success_info = [name_input];
-    switch (selected_method) {
+    let successInfo = [nameInput];
+    switch (selectedMethod) {
       case "ActivityIntentsObject": {
-        let extracted_domain = Form.extractDomainStr(domain_input);
-        if(!extracted_domain) {
+        const domainInput = this.elems["inputs"]["domain"].value;
+        let extractedDomain = extractDomainStr(domainInput);
+        if(!extractedDomain) {
           return false;
         }
-        redirect.data.domain = extracted_domain;
-        success = await redirect.discoverActivityIntent();
-        success_info.push(extracted_domain);
+        success = await redirect.discoverActivityIntent(extractedDomain);
+        // successInfo.push(extractedDomain);
         break;
       }
 
       case "Ostatus1.0Subscribe": {
-        let extracted_domain = Form.extractDomainStr(domain_input);
-        if(!extracted_domain) {
+        const domainInput = this.elems["inputs"]["domain"].value;
+        let extractedDomain = extractDomainStr(domainInput);
+        if(!extractedDomain) {
           return false;
         }
-        redirect.data.domain = extracted_domain;
-        let extracted_username = Form.extractUserStr(domain_input);
-        redirect.data.user_name = extracted_username;
-        const ask_username = async () => await Form.askUsername(extracted_domain, "manual_form");
-        success = await redirect.discoverOstatusSubscribe(ask_username);
-        success_info.push(extracted_domain);
+        let extractedUsername = extractUserStr(domainInput);
+        redirect.data["user_name"] = extractedUsername;
+        const askUsernameHandler = async () => await askUsername(extractedDomain, "manual_form");
+        success = await redirect.discoverOstatusSubscribe(askUsernameHandler);
+        // successInfo.push(extractedDomain);
+        break;
+      }
+
+      case "URLTemplate": {
+        const templateInput = this.elems["inputs"]["template"].value;
+        success = redirect.setTemplateMethod(templateInput);
         break;
       }
 
@@ -467,8 +511,8 @@ export const ManualForm = {
 
     if (success) {
       await redirect.save();
-      appendInfoOnCompletedScreen(...success_info);
-      moveAndShowPage("completed");
+      appendInfoOnCompletedScreen(...successInfo);
+      showPage("completed");
       return true;
     }
 
@@ -476,15 +520,15 @@ export const ManualForm = {
   },
 
   toggleInputs(method) {
-    const input_fields = document.getElementById("manual_form_select_method_field");
+    const inputFields = document.getElementById("manual_form_select_method_field");
 
     let last;
     while (true) {
-      last = input_fields.lastChild
+      last = inputFields.lastChild
       if (!last) {
         break;
       }
-      input_fields.removeChild(last);
+      inputFields.removeChild(last);
     }
 
     if (method == "URLTemplate") {
@@ -494,17 +538,17 @@ export const ManualForm = {
             Template *
             <input name="template" type="text" 
                 placeholder="https://example.com/search?query={id}" 
+                value="https://example.com/search?query={id}"
                 autocomplete="off" maxlength="10000" required />
             <div id="manual_form_template_error" class="error-msg"></div>
           </label>`;
-      const input_elem = temp.content.firstChild;
-      input_fields.append(input_elem);
+      const inputElem = temp.content.firstChild;
+      inputFields.append(inputElem);
 
-      this.elems.template_label = input_elem;
-      this.elems.template_input = this.elems.form.elements.template;
-      this.elems.template_error = document.getElementById("manual_form_template_error");
+      this.elems["inputs"]["template"] = this.elems.form.elements.template;
+      this.elems["inputs"]["templateErr"] = document.getElementById("manual_form_template_error");
 
-      this._setupTextInput(this.elems.template_input, this.elems.template_error);
+      this._setupTextInput(this.elems["inputs"]["template"], this.elems["inputs"]["templateErr"]);
     }
 
     if (method == "ActivityIntentsObject" ||
@@ -518,14 +562,15 @@ export const ManualForm = {
                 maxlength="10000" required />
             <div id="manual_form_domain_error" class="error-msg"></div>
           </label>`;
-      let input_elem = temp.content.firstChild;
-      input_fields.append(input_elem);
+      const inputElem = temp.content.firstChild;
+      inputFields.append(inputElem);
 
-      this.elems.domain_label = input_elem;
-      this.elems.domain_input = this.elems.form.elements.domain;
-      this.elems.domain_error = document.getElementById("manual_form_domain_error");
+      this.elems["inputs"]["domain"] = this.elems.form.elements.domain;
+      this.elems["inputs"]["domainErr"] = document.getElementById("manual_form_domain_error");
       
-      this._setupTextInput(this.elems.domain_input, this.elems.domain_error, Form.validateDomain);
+      this._setupTextInput(
+        this.elems["inputs"]["domain"], this.elems["inputs"]["domainErr"], validateDomain
+      );
     }
   }
 }

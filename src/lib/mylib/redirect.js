@@ -18,9 +18,13 @@ export function getFilledURIFromTemplate(method ,currentURL) {
       filledURI = template.fill({object: currentURL});
     } else if (method.name == "Ostatus1.0Subscribe") {
       filledURI = template.fill({uri: currentURL});
+    } else if( method.name == "URLTemplate") {
+      filledURI = template.fill({id: currentURL});
+    } else {
+      throw new Error("Unkown method");
     }
   } catch (error) {
-    console.log(`[Error]: getFilledURIFromTemplate: UriTemplate Failed ${error}`);
+    console.log(`[Error]: getFilledURIFromTemplate: UriTemplate Failed: ${error}`);
     return null;
   }
 

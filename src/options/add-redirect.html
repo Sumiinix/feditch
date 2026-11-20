@@ -1,7 +1,8 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <title>Add redirect</title>
+    <meta name="description" content="Add redirect">
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../lib/oat/oat.min.css" />
     <link rel="stylesheet" href="./style.css" />
@@ -10,7 +11,7 @@
     <main class="container">
       <div 
         data-page="add_redirect"
-        data-state="add_redirect"
+        data-state="true"
         data-current-page="true"
       >
         <h2>Select the method</h2>
@@ -56,12 +57,12 @@
           <h3>Enter instance's domain to create a redirect</h3>
           <form id="auto_form_elem">
             <label data-field>
-              Save redirect name *
+              Name *
               <input
                 name="name"
                 type="text"
-                placeholder="Switch to example.com"
-                minlength="2"
+                placeholder="My home instance"
+                minlength="1"
                 maxlength="30"
                 autocomplete="off"
                 required
@@ -80,7 +81,9 @@
               />
               <div id="auto_form_domain_error" class="error-msg"></div>
             </label>
-            <input type="submit" value="Add redirect" id="auto_form_add_btn" data-spinner="small"/>
+            <div class="flex justify-end">
+              <button id="auto_form_add_btn" data-spinner="small">Add redirect</button>
+            </div>
             <div id="auto_form_error" class="error-msg"></div>
           </form>
         </div>
@@ -126,7 +129,7 @@
                 name="name"
                 type="text"
                 placeholder="Switch to example.com"
-                minlength="2"
+                minlength="1"
                 maxlength="30"
                 autocomplete="off"
                 required
@@ -135,16 +138,18 @@
             </label>
             <label data-field>
               Redirect method *
-              <select name="select_method" aria-label="Select a method">
-                <option value="URLTemplate">⚠️[WIP] URL Template</option>
+              <select name="methodSelect" aria-label="Select a method">
+                <option value="URLTemplate">URL Template</option>
                 <option value="ActivityIntentsObject">Activity Intents</option>
                 <option value="Ostatus1.0Subscribe">Ostatus 1.0 Subscribe</option>
-                <option value="WebApURI">⚠️[WIP] web+ap URI</option>
+                <!-- <option value="WebApURI">web+ap URI</option> -->
               </select>
             </label>
             <div id="manual_form_select_method_field">
             </div>
-            <input type="submit" value="Add redirect" id="manual_form_add_btn" data-spinner="small"/>
+            <div class="flex justify-end">
+              <button id="manual_form_add_btn" data-spinner="small">Add redirect</button>
+            </div>
             <div id="manual_form_error" class="error-msg"></div>
           </form>
         </div>

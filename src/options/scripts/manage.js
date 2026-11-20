@@ -1,7 +1,30 @@
-// /*global browser*/
-import { manageRedirect } from "../../lib/mylib/storage.js";
-// import { getRedirectDetailString } from "../../lib/mylib/redirect.js";
+/*global browser*/
+import { manageRedirect, resetAllData } from "../../lib/mylib/storage.js";
 import { Sortable } from "../../lib/Sortable/sortable.core.esm.js";
+
+class ActionButton {
+  constructor(elem) {
+    this._elem = elem;
+    elem.addEventListener("click", this._onClick.bind(this));
+  }
+
+  goTo(path) {
+    window.location.href = new URL(path, window.location.href).href;
+  }
+
+  _onClick(event) {
+    const action = event.target.dataset.action;
+
+    switch (action) {
+      case "goTo":
+      this.goTo(event.target.dataset.path);
+      break;
+
+      default:
+        break;
+    }
+  }
+}
 
 class Tab {
   constructor(buttonsElem, contentsElem) {
@@ -11,9 +34,16 @@ class Tab {
   }
 
   switchTo(tabName) {
+    const previousTabBtn = this._buttonsElem.querySelector(`.current[data-name]`);
+    const tabBtn = this._buttonsElem.querySelector(`[data-name=${tabName}]`);
     const previousContent = this._contentsElem.querySelector('[data-display="true"]');
     const content = this._contentsElem.querySelector(`[data-name=${tabName}]`);
     
+    if(previousTabBtn) {
+      previousTabBtn.classList.remove("current");
+    }
+
+    tabBtn.classList.add("current");
     previousContent.dataset.display = "false";
     content.dataset.display = "true";
   }
@@ -30,16 +60,6 @@ class Tab {
         break;
     }
   }
-}
-
-function watchOpenPageButton() {
-  const handler = (event) => {
-    const pagePath = event.target.dataset.openPath;
-    if (!pagePath) return;
-    window.location.href = new URL(pagePath, window.location.href).href;
-  };
-
-  document.addEventListener("click", handler);
 }
 
 async function loadRedirects() {
@@ -117,16 +137,7 @@ async function loadRedirects() {
 
     const edit_button = drop_button_target.querySelector("[data-manage-action=edit]");
     edit_button.addEventListener("click", async () => {
-      const new_frame = document.createElement("iframe");
-      new_frame.src = `./edit.html?editIndex=${row.dataset.index}`;
-      new_frame.classList.add("popup");
-
-      window.closePopup = () => {
-        new_frame.remove();
-        loadRedirects();
-      }
-
-      document.body.append(new_frame);
+      window.location.href = new URL(`./edit.html?editIndex=${row.dataset.index}`, window.location.href).href;
       row.remove();
     });
 
@@ -169,11 +180,18 @@ async function loadRedirects() {
 }
 
 (async () => {
-  await loadRedirects();
-  watchOpenPageButton();
+  loadRedirects();
+
+  new ActionButton(document.getElementById("add-redirect-btn"));
 
   new Tab(
     document.getElementById("header-tab"),
     document.getElementById("tab-contents")
   );
+
+  const resetButtonElem = document.getElementById("reset-data");
+  resetButtonElem.addEventListener("click", async () => {
+    await resetAllData();
+    browser.tabs.update({ url: "/options/manage.html"});   
+  });
 })();

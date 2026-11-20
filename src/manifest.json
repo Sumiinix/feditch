@@ -2,7 +2,7 @@
   "description": "[Pre-alpha] Instance switcher",
   "manifest_version": 3,
   "name": "Feditch",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "homepage_url": "https://git.sumiinix.moe/Sumiinix/feditch",
   "permissions": ["activeTab", "storage"],
   "host_permissions": ["https://*/*"],
