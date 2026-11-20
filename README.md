@@ -31,9 +31,9 @@ These endpoints are URL templates. So, if your home instance's endpoint is `http
 https://home.example.com/authorize_interaction?uri=https%3A%2F%2Fremote.example.com%2Fpost%2Fid
 ```
 
-<!-- ### URL Template
+### URL Template
 
-> We plan to add a redirect method using URL templates. This should be flexible and allow for the addition of software-specific redirects, such as `https://example.com/search?query={uri}`. -->
+You can use it to redirect to the search page, such as: `https://example.com/search?query={id}`.
 
 ## Find ActivityPub
 
@@ -41,12 +41,25 @@ To redirect from a remote server, you need to be currently on an ActivityPub-com
 
 When you open the Feditch extension popup, it will fetch the current URL to check if it's ActivityPub-compatible. Then, it will show in the popup whether redirection is possible. However, it cannot detect all ActivityPub-compatible pages. If detection fails, it will display "Not Found," but if you know it's redirectable, just go ahead and redirect.
 
-## Install
+## Download
 
 Signed builds for Firefox are currently available.
 
-- [Install on Firefox](https://dl.sumiinix.moe/download/feditch/latest.signed.xpi)
+- [Download for Firefox](https://dl.sumiinix.moe/download/feditch/latest.signed.xpi)
 
-## License
+## License & Credits
 
-MIT License. See the [LICENSE](./LICENSE) file for details.
+My source code is under the [MIT License](./LICENSE).
+
+The following is an external source:
+
+- [Oat](https://oat.ink/) (at [src/lib/oat/](src/lib/oat/)):  UI library.
+- [SortableJS](https://sortablejs.github.io/Sortable/) (at [src/lib/Sortable/](src/lib/Sortable/)): Drag-anddrop lists library.
+- [uri-templates](https://github.com/geraintluff/uri-templates) (at [src/lib/uri-templates/](src/lib/uri-templates/)): URI Templates in JavaScript.
+- [SVG Spinners](https://github.com/n3r4zzurr0/svg-spinners)
+- [Fluent UI System Icons](https://github.com/microsoft/fluentui-system-icons)
+- [Material Symbols](https://github.com/google/material-design-icons)
+
+Other credits:
+
+- [Iconify](https://iconify.design/): Useful for finding icons.
